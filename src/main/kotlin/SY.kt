@@ -1,11 +1,9 @@
 package fk.home
 
-import kotlin.toString
-
-fun parseExpression(expr: String): List<Token> =
+internal fun parseExpression(expr: String): List<Token> =
     ShuntingYard(expr).parse()
 
-fun List<Token>.syQueueToString(): String {
+internal fun List<Token>.syQueueToString(): String {
     return this
         .map { it.toString() }
         .reduceRightOrNull { acc, string ->  "$acc $string"  }
