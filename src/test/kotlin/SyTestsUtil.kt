@@ -1,13 +1,13 @@
-import fk.home.SyCalculatorOutput
-import fk.home.calculate
-import fk.home.parseExpression
+import fk.home.ShuntingYardCalculator.Companion.calculate
+import fk.home.ShuntingYardParser.Companion.parseExpression
+import fk.home.ShuntingYardOutput
 import fk.home.syQueueToString
 import kotlin.test.assertEquals
 
 fun validate(
     expression: String,
     expectedParsedExpression: String,
-    expectedResult: SyCalculatorOutput
+    expectedResult: ShuntingYardOutput
 ) {
 
     parseExpression(expression)

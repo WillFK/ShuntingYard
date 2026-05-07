@@ -2,7 +2,7 @@ package fk.home
 
 import kotlin.math.sqrt
 
-internal class Calculator {
+internal class ShuntingYardCalculator {
 
     val tokens: MutableList<Token>
     private var parenthesisCounter = 0
@@ -11,15 +11,15 @@ internal class Calculator {
         this.tokens = tokens.toMutableList()
     }
 
-    private fun calculate(): SyCalculatorOutput  {
+    private fun calculate(): ShuntingYardOutput  {
         return try {
             popToken()
                 .solve()
-                .let(SyCalculatorOutput::Success)
+                .let(ShuntingYardOutput::Success)
         } catch (e: Throwable) {
             when (e) {
                 is CustomCalculatorError -> e.error
-                else -> SyCalculatorOutput.Error.Generic
+                else -> ShuntingYardOutput.Error.Generic
             }
         }
     }
@@ -60,19 +60,19 @@ internal class Calculator {
 
     companion object {
 
-        fun calculate(tokens: List<Token>): SyCalculatorOutput {
-            return Calculator(tokens).calculate()
+        fun calculate(tokens: List<Token>): ShuntingYardOutput {
+            return ShuntingYardCalculator(tokens).calculate()
         }
     }
 }
 
-private data class CustomCalculatorError(val error: SyCalculatorOutput.Error) : Throwable()
+private data class CustomCalculatorError(val error: ShuntingYardOutput.Error) : Throwable()
 
-sealed interface SyCalculatorOutput {
+sealed interface ShuntingYardOutput {
 
-    data class Success(val value: Double) : SyCalculatorOutput
+    data class Success(val value: Double) : ShuntingYardOutput
 
-    sealed interface Error : SyCalculatorOutput {
+    sealed interface Error : ShuntingYardOutput {
 
         object ParenthesisMismatch : Error
 
@@ -102,7 +102,7 @@ sealed interface Node {
             next.solve()
                 .let { radicand ->
                     if (radicand < 0) {
-                        throw CustomCalculatorError(SyCalculatorOutput.Error.SquareRootOfNegativeNumber)
+                        throw CustomCalculatorError(ShuntingYardOutput.Error.SquareRootOfNegativeNumber)
                     } else {
                         sqrt(radicand)
                     }
@@ -124,7 +124,7 @@ sealed interface Node {
     data class Division(val left: Node, val right: Node) : Node {
         override fun solve(): Double = right.solve().let { divisor ->
             if (divisor == .0) {
-                throw CustomCalculatorError(SyCalculatorOutput.Error.DivisionByZero)
+                throw CustomCalculatorError(ShuntingYardOutput.Error.DivisionByZero)
             } else {
                 left.solve() / divisor
             }

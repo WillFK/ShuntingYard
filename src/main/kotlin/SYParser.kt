@@ -1,8 +1,5 @@
 package fk.home
 
-internal fun parseExpression(expr: String): List<Token> =
-    ShuntingYardMachine(expr).parse()
-
 internal fun List<Token>.syQueueToString(): String {
     return this
         .map { it.toString() }
@@ -10,7 +7,7 @@ internal fun List<Token>.syQueueToString(): String {
         ?: ""
 }
 
-private class ShuntingYardMachine(val expression: String) {
+internal class ShuntingYardParser private constructor(val expression: String) {
 
     val segments = expression.split(" ").toMutableList()
     val output = mutableListOf<Token>()
@@ -62,5 +59,11 @@ private class ShuntingYardMachine(val expression: String) {
         builder.append("output: ${output.syQueueToString()}\n")
         builder.append("stack: ${operatorStack.syQueueToString()}\n")
         return builder.toString()
+    }
+
+    companion object {
+
+        internal fun parseExpression(expr: String): List<Token> =
+            ShuntingYardParser(expr).parse()
     }
 }
