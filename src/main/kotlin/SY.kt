@@ -1,7 +1,7 @@
 package fk.home
 
 internal fun parseExpression(expr: String): List<Token> =
-    ShuntingYard(expr).parse()
+    ShuntingYardMachine(expr).parse()
 
 internal fun List<Token>.syQueueToString(): String {
     return this
@@ -10,7 +10,7 @@ internal fun List<Token>.syQueueToString(): String {
         ?: ""
 }
 
-private class ShuntingYard(val expression: String) {
+private class ShuntingYardMachine(val expression: String) {
 
     val segments = expression.split(" ").toMutableList()
     val output = mutableListOf<Token>()

@@ -2,11 +2,7 @@ package fk.home
 
 import kotlin.math.sqrt
 
-fun calculate(tokens: List<Token>): SyCalculatorOutput {
-    return Calculator(tokens).calculate()
-}
-
-private class Calculator {
+internal class Calculator {
 
     val tokens: MutableList<Token>
     private var parenthesisCounter = 0
@@ -15,7 +11,7 @@ private class Calculator {
         this.tokens = tokens.toMutableList()
     }
 
-    fun calculate(): SyCalculatorOutput  {
+    private fun calculate(): SyCalculatorOutput  {
         return try {
             popToken()
                 .solve()
@@ -59,6 +55,13 @@ private class Calculator {
                 Node.Division(a, b)
             }
             else -> throw IllegalArgumentException("Unexpected token type ${tokens.removeLast()}")
+        }
+    }
+
+    companion object {
+
+        fun calculate(tokens: List<Token>): SyCalculatorOutput {
+            return Calculator(tokens).calculate()
         }
     }
 }

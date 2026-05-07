@@ -1,9 +1,10 @@
 plugins {
     kotlin("jvm") version "2.3.0"
+    `java-library`
 }
 
 group = "fk.home"
-version = "1.0-SNAPSHOT"
+version = "0.1.0"
 
 repositories {
     mavenCentral()

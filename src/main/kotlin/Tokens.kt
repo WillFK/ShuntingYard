@@ -79,7 +79,7 @@ object SquareRoot : Operator() {
     override val precedence = 3
 }
 
-fun String.tokenfy(): Token {
+internal fun String.tokenfy(): Token {
 
     return this.toIntOrNull()?.let(::Value)
         ?: Operator.all.find { it.symbol == this }
