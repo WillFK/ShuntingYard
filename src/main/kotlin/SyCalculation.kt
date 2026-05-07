@@ -2,7 +2,7 @@ package fk.home
 
 import kotlin.math.sqrt
 
-fun calculate(tokens: List<Token>): Double {
+fun calculate(tokens: List<Token>): SyCalculatorOutput {
     return Calculator(tokens).calculate()
 }
 
@@ -15,7 +15,18 @@ private class Calculator {
         this.tokens = tokens.toMutableList()
     }
 
-    fun calculate(): Double = popToken().solve()
+    fun calculate(): SyCalculatorOutput  {
+        return try {
+            popToken()
+                .solve()
+                .let(SyCalculatorOutput::Success)
+        } catch (e: Throwable) {
+            when (e) {
+                is CustomCalculatorError -> e.error
+                else -> SyCalculatorOutput.Error.Generic
+            }
+        }
+    }
 
     /**
      * if this function is called, it's assumed there should be elements within `tokens`
@@ -52,6 +63,29 @@ private class Calculator {
     }
 }
 
+private data class CustomCalculatorError(val error: SyCalculatorOutput.Error) : Throwable()
+
+sealed interface SyCalculatorOutput {
+
+    data class Success(val value: Double) : SyCalculatorOutput
+
+    sealed interface Error : SyCalculatorOutput {
+
+        object ParenthesisMismatch : Error
+
+        object ExpressionFormat : Error
+
+        object DivisionByZero : Error
+
+        object SquareRootOfNegativeNumber: Error
+
+        object Math : Error
+
+        object Generic: Error
+    }
+
+}
+
 sealed interface Node {
 
     fun solve() : Double
@@ -61,7 +95,15 @@ sealed interface Node {
     }
 
     data class Square(val next: Node) : Node {
-        override fun solve(): Double = sqrt(next.solve())
+        override fun solve(): Double =
+            next.solve()
+                .let { radicand ->
+                    if (radicand < 0) {
+                        throw CustomCalculatorError(SyCalculatorOutput.Error.SquareRootOfNegativeNumber)
+                    } else {
+                        sqrt(radicand)
+                    }
+                }
     }
 
     data class Sum(val left: Node, val right: Node) : Node {
@@ -77,6 +119,12 @@ sealed interface Node {
     }
 
     data class Division(val left: Node, val right: Node) : Node {
-        override fun solve(): Double = left.solve() / right.solve()
+        override fun solve(): Double = right.solve().let { divisor ->
+            if (divisor == .0) {
+                throw CustomCalculatorError(SyCalculatorOutput.Error.DivisionByZero)
+            } else {
+                left.solve() / divisor
+            }
+        }
     }
 }

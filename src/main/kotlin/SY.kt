@@ -1,7 +1,16 @@
 package fk.home
 
+import kotlin.toString
+
 fun parseExpression(expr: String): List<Token> =
     ShuntingYard(expr).parse()
+
+fun List<Token>.syQueueToString(): String {
+    return this
+        .map { it.toString() }
+        .reduceRightOrNull { acc, string ->  "$acc $string"  }
+        ?: ""
+}
 
 private class ShuntingYard(val expression: String) {
 
@@ -24,8 +33,6 @@ private class ShuntingYard(val expression: String) {
         } else {
             processOperator(token as Operator)
         }
-
-        println(toString())
     }
 
     private fun processOperator(op: Operator) {
@@ -54,8 +61,8 @@ private class ShuntingYard(val expression: String) {
         val builder = StringBuilder()
         builder.append("expression: $expression\n")
         builder.append("segments: $segments\n")
-        builder.append("output: ${output.map(Token::toString).reduceRightOrNull { acc, token -> "$acc $token" }}\n")
-        builder.append("stack: ${operatorStack.map(Operator::toString).reduceRightOrNull { acc, token -> "$acc $token" }}\n")
+        builder.append("output: ${output.syQueueToString()}\n")
+        builder.append("stack: ${operatorStack.syQueueToString()}\n")
         return builder.toString()
     }
 }
