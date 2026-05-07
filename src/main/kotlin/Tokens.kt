@@ -3,13 +3,26 @@ package fk.home
 
 sealed interface Token
 
-data class Value(val value: Double) : Token {
+data class Value(val value: Int) : Token {
     override fun toString() = "$value"
 }
 
+enum class OperationType {
+    Unary,
+    Binary
+}
+
+enum class Associativity {
+    LEFT,
+    RIGHT
+}
 sealed class Operator : Token {
 
     abstract val symbol: String
+
+    abstract val associativity: Associativity
+
+    abstract val precedence: Int
 
     override fun toString(): String {
         return symbol
@@ -28,26 +41,47 @@ sealed class Operator : Token {
 
 object Plus : Operator() {
     override val symbol = "+"
+
+    override val associativity = Associativity.LEFT
+
+    override val precedence = 0
 }
 
 object Minus : Operator() {
     override val symbol = "-"
+
+    override val associativity = Associativity.LEFT
+
+    override val precedence = 0
 }
 
 object Multiply : Operator() {
     override val symbol = "*"
+
+    override val associativity = Associativity.LEFT
+
+    override val precedence = 1
 }
 
 object Divide : Operator() {
     override val symbol = "/"
+
+    override val associativity = Associativity.LEFT
+
+    override val precedence = 2
 }
 
 object SquareRoot : Operator() {
     override val symbol = "R"
+
+    override val associativity = Associativity.RIGHT
+
+    override val precedence = 3
 }
 
 fun String.tokenfy(): Token {
 
-    val asDouble = this.toDoubleOrNull()
-    return asDouble?.let(::Value) ?: Operator.all.find { it.symbol == this } ?: throw IllegalArgumentException("Symbol $this not found")
+    return this.toIntOrNull()?.let(::Value)
+        ?: Operator.all.find { it.symbol == this }
+        ?: throw IllegalArgumentException("Symbol $this not found")
 }

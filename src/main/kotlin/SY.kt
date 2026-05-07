@@ -1,8 +1,7 @@
 package fk.home
 
-fun parseExpression(expr: String) {
+fun parseExpression(expr: String): List<Token> =
     ShuntingYard(expr).parse()
-}
 
 private class ShuntingYard(val expression: String) {
 
@@ -10,14 +9,13 @@ private class ShuntingYard(val expression: String) {
     val output = mutableListOf<Token>()
     val operatorStack = mutableListOf<Operator>()
 
-    fun parse() {
+    fun parse(): List<Token> {
 
         while (segments.isNotEmpty()) {
             segments.removeFirst().tokenfy().let(::processToken)
         }
         popOperators()
-
-        println(toString())
+        return output.toList()
     }
 
     private fun processToken(token: Token) {
@@ -26,10 +24,24 @@ private class ShuntingYard(val expression: String) {
         } else {
             processOperator(token as Operator)
         }
+
+        println(toString())
     }
 
     private fun processOperator(op: Operator) {
-        operatorStack.add(op)
+
+        if (operatorStack.isEmpty()) {
+            // if stack is empty, just add operator to it
+            operatorStack.add(op)
+        } else {
+            val last = operatorStack.last()
+            if (last.precedence > op.precedence || (last.precedence == op.precedence && last.associativity == Associativity.LEFT)) {
+                operatorStack.removeLast().let(output::add)
+                processOperator(op)
+            } else {
+                operatorStack.add(op)
+            }
+        }
     }
 
     private fun popOperators() {
